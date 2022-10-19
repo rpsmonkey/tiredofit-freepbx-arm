@@ -1,5 +1,5 @@
 ###https://github.com/tiredofit/docker-debian/tree/buster
-FROM debian:buster AS epandi-debian-buster
+FROM debian:bullseye AS epandi-debian-bullseye
 LABEL maintainer="Dave Conroy (dave at tiredofit dot ca)"
 
 ### Set defaults
@@ -11,7 +11,7 @@ ENV ZABBIX_VERSION=5.2 \
     ENABLE_CRON=TRUE \
     ENABLE_SMTP=TRUE \
     ENABLE_ZABBIX=TRUE \
-    ZABBIX_HOSTNAME=debian.buster
+    ZABBIX_HOSTNAME=debian.bullseye
 
 ### Dependencies addon
 RUN set -x && \
@@ -39,8 +39,8 @@ RUN set -x && \
             wget \
             && \
 ### curl https://repo.zabbix.com/zabbix-official-repo.key | apt-key add - && \
-### echo "deb http://repo.zabbix.com/zabbix/${ZABBIX_VERSION}/debian buster main" >>/etc/apt/sources.list && \
-### echo "deb-src http://repo.zabbix.com/zabbix/${ZABBIX_VERSION}/debian buster main" >>/etc/apt/sources.list && \
+### echo "deb http://repo.zabbix.com/zabbix/${ZABBIX_VERSION}/debian bullseye main" >>/etc/apt/sources.list && \
+### echo "deb-src http://repo.zabbix.com/zabbix/${ZABBIX_VERSION}/debian bullseye main" >>/etc/apt/sources.list && \
     wget https://repo.zabbix.com/zabbix/5.2/raspbian/pool/main/z/zabbix-release/zabbix-release_5.2-1+debian$(cut -d"." -f1 /etc/debian_version)_all.deb && \
     dpkg -i zabbix-release_5.2-1+debian$(cut -d"." -f1 /etc/debian_version)_all.deb && \
     apt-get update && \
@@ -69,7 +69,7 @@ RUN set -x && \
 EXPOSE 1025 8025 10050/TCP
 
 ### Add folders
-ADD debian-buster/install /
+ADD debian-bullseye/install /
 
 ### Entrypoint configuration
 ENTRYPOINT ["/init"]
@@ -77,7 +77,7 @@ ENTRYPOINT ["/init"]
 
 
 ###https://github.com/tiredofit/docker-nodejs/tree/10/debian
-FROM epandi-debian-buster AS epandi-nodejs-10-debian-latest
+FROM epandi-debian-bullseye AS epandi-nodejs-10-debian-latest
 LABEL maintainer="Dave Conroy (dave at tiredofit dot ca)"
 
 ### Environment variables
@@ -89,8 +89,8 @@ RUN adduser --home /app --gecos "Node User" --disabled-password nodejs && \
 \
 ### Install NodeJS
     wget --no-check-certificate -qO - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
-    echo 'deb https://deb.nodesource.com/node_10.x buster main' > /etc/apt/sources.list.d/nodesource.list && \
-    echo 'deb-src https://deb.nodesource.com/node_10.x buster main' >> /etc/apt/sources.list.d/nodesource.list && \
+    echo 'deb https://deb.nodesource.com/node_10.x bullseye main' > /etc/apt/sources.list.d/nodesource.list && \
+    echo 'deb-src https://deb.nodesource.com/node_10.x bullseye main' >> /etc/apt/sources.list.d/nodesource.list && \
     apt-get update && \
     apt-get install -y \
             nodejs \
@@ -122,21 +122,21 @@ ENV ASTERISK_VERSION=18.3.0 \
 ### Pin libxml2 packages to Debian repositories
 RUN c_rehash && \
     echo "Package: libxml2*" > /etc/apt/preferences.d/libxml2 && \
-    echo "Pin: release o=Debian,n=buster" >> /etc/apt/preferences.d/libxml2 && \
+    echo "Pin: release o=Debian,n=bullseye" >> /etc/apt/preferences.d/libxml2 && \
     echo "Pin-Priority: 501" >> /etc/apt/preferences.d/libxml2 && \
     APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=TRUE && \
     \
 ### Install dependencies
     set -x && \
     curl https://packages.sury.org/php/apt.gpg | apt-key add - && \
-    echo "deb https://packages.sury.org/php/ buster main" > /etc/apt/sources.list.d/deb.sury.org.list && \
+    echo "deb https://packages.sury.org/php/ bullseye main" > /etc/apt/sources.list.d/deb.sury.org.list && \
 #    curl https://www.mongodb.org/static/pgp/server-${MONGODB_VERSION}.asc | apt-key add - && \
-#    echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/${MONGODB_VERSION} main" > /etc/apt/sources.list.d/mongodb-org.list && \
-    echo "deb http://ftp.us.debian.org/debian/ buster-backports main" > /etc/apt/sources.list.d/backports.list && \
-    echo "deb-src http://ftp.us.debian.org/debian/ buster-backports main" >> /etc/apt/sources.list.d/backports.list && \
+#    echo "deb http://repo.mongodb.org/apt/debian bullseye/mongodb-org/${MONGODB_VERSION} main" > /etc/apt/sources.list.d/mongodb-org.list && \
+    echo "deb http://ftp.us.debian.org/debian/ bullseye-backports main" > /etc/apt/sources.list.d/backports.list && \
+    echo "deb-src http://ftp.us.debian.org/debian/ bullseye-backports main" >> /etc/apt/sources.list.d/backports.list && \
     wget https://archive.raspbian.org/raspbian.public.key -O - | sudo apt-key add - && \
-    echo "deb http://archive.raspbian.org/raspbian buster main contrib non-free" >>/etc/apt/sources.list && \
-    echo "deb-src http://archive.raspbian.org/raspbian buster main contrib non-free" >>/etc/apt/sources.list && \
+    echo "deb http://archive.raspbian.org/raspbian bullseye main contrib non-free" >>/etc/apt/sources.list && \
+    echo "deb-src http://archive.raspbian.org/raspbian bullseye main contrib non-free" >>/etc/apt/sources.list && \
     apt-get update && \
     apt-get -o Dpkg::Options::="--force-confold" upgrade -y && \
     \

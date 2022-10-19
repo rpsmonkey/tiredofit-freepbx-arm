@@ -3,8 +3,8 @@ FROM debian:bullseye AS epandi-debian-bullseye
 LABEL maintainer="Dave Conroy (dave at tiredofit dot ca)"
 
 ### Set defaults
-ENV ZABBIX_VERSION=5.2 \
-    S6_OVERLAY_VERSION=v2.1.0.2 \
+ENV ZABBIX_VERSION=6.2 \
+    S6_OVERLAY_VERSION=v2.11.1.2 \
     DEBUG_MODE=FALSE \
     TIMEZONE=Etc/GMT \
     DEBIAN_FRONTEND=noninteractive \
@@ -41,13 +41,13 @@ RUN set -x && \
 ### curl https://repo.zabbix.com/zabbix-official-repo.key | apt-key add - && \
 ### echo "deb http://repo.zabbix.com/zabbix/${ZABBIX_VERSION}/debian bullseye main" >>/etc/apt/sources.list && \
 ### echo "deb-src http://repo.zabbix.com/zabbix/${ZABBIX_VERSION}/debian bullseye main" >>/etc/apt/sources.list && \
-    wget https://repo.zabbix.com/zabbix/5.2/raspbian/pool/main/z/zabbix-release/zabbix-release_5.2-1+debian$(cut -d"." -f1 /etc/debian_version)_all.deb && \
-    dpkg -i zabbix-release_5.2-1+debian$(cut -d"." -f1 /etc/debian_version)_all.deb && \
+    wget https://repo.zabbix.com/zabbix/6.2/raspbian/pool/main/z/zabbix-release/zabbix-release_6.2-2+debian$(cut -d"." -f1 /etc/debian_version)_all.deb && \
+    dpkg -i zabbix-release_6.2-2+debian$(cut -d"." -f1 /etc/debian_version)_all.deb && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
             zabbix-agent && \
     rm -rf /etc/zabbix/zabbix-agentd.conf.d/* && \
-    curl -ksSLo /usr/local/bin/MailHog https://github.com/mailhog/MailHog/releases/download/v1.0.0/MailHog_linux_arm && \
+    curl -ksSLo /usr/local/bin/MailHog https://github.com/mailhog/MailHog/releases/download/v1.0.1/MailHog_linux_arm && \
     curl -ksSLo /usr/local/bin/mhsendmail https://github.com/mailhog/mhsendmail/releases/download/v0.2.0/mhsendmail_linux_arm && \
     chmod +x /usr/local/bin/MailHog && \
     chmod +x /usr/local/bin/mhsendmail && \
@@ -77,7 +77,7 @@ ENTRYPOINT ["/init"]
 
 
 ###https://github.com/tiredofit/docker-nodejs/tree/10/debian
-FROM epandi-debian-bullseye AS epandi-nodejs-10-debian-latest
+FROM epandi-debian-bullseye AS epandi-nodejs-16-debian-latest
 LABEL maintainer="Dave Conroy (dave at tiredofit dot ca)"
 
 ### Environment variables
@@ -89,8 +89,8 @@ RUN adduser --home /app --gecos "Node User" --disabled-password nodejs && \
 \
 ### Install NodeJS
     wget --no-check-certificate -qO - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
-    echo 'deb https://deb.nodesource.com/node_10.x bullseye main' > /etc/apt/sources.list.d/nodesource.list && \
-    echo 'deb-src https://deb.nodesource.com/node_10.x bullseye main' >> /etc/apt/sources.list.d/nodesource.list && \
+    echo 'deb https://deb.nodesource.com/node_16.x bullseye main' > /etc/apt/sources.list.d/nodesource.list && \
+    echo 'deb-src https://deb.nodesource.com/node_16.x bullseye main' >> /etc/apt/sources.list.d/nodesource.list && \
     apt-get update && \
     apt-get install -y \
             nodejs \
@@ -104,17 +104,17 @@ RUN adduser --home /app --gecos "Node User" --disabled-password nodejs && \
 
 
 ###https://github.com/tiredofit/docker-freepbx
-FROM epandi-nodejs-10-debian-latest
+FROM epandi-nodejs-16-debian-latest
 LABEL maintainer="Dave Conroy (dave at tiredofit dot ca)"
 
 ### Set defaults
-ENV ASTERISK_VERSION=18.3.0 \
-    BCG729_VERSION=1.0.4 \
+ENV ASTERISK_VERSION=18.14.0 \
+    BCG729_VERSION=1.0.2 \
     DONGLE_VERSION=20200610 \
     G72X_CPUHOST=penryn \
-    G72X_VERSION=0.1 \
-    MONGODB_VERSION=4.2 \
-    PHP_VERSION=7.3 \
+    G72X_VERSION=1.4.3 \
+    MONGODB_VERSION=4.4 \
+    PHP_VERSION=7.4 \
     SPANDSP_VERSION=20180108 \
     RTP_START=18000 \
     RTP_FINISH=20000
@@ -278,7 +278,7 @@ RUN c_rehash && \
     cd /usr/src && \
     git clone https://github.com/MariaDB/mariadb-connector-odbc.git && \
     cd mariadb-connector-odbc && \
-    git checkout tags/3.1.1-ga && \
+    git checkout tags/3.1.17 && \
     mkdir build && \
     cd build && \
     cmake ../ -LH -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DWITH_SSL=OPENSSL\

@@ -1,10 +1,10 @@
 ###https://github.com/tiredofit/docker-debian/tree/buster
-FROM debian:bullseye AS epandi-debian-bullseye
-LABEL maintainer="Dave Conroy (dave at tiredofit dot ca)"
+FROM debian:bullseye AS rps-debian-bullseye
+LABEL maintainer="RPS / Dave Conroy (dave at tiredofit dot ca)"
 
 ### Set defaults
 ENV ZABBIX_VERSION=6.2 \
-    S6_OVERLAY_VERSION=v2.11.1.2 \
+    S6_OVERLAY_VERSION=v2.2.0.3 \
     DEBUG_MODE=FALSE \
     TIMEZONE=Etc/GMT \
     DEBIAN_FRONTEND=noninteractive \
@@ -35,6 +35,7 @@ RUN set -x && \
             procps \
             sudo \
             tzdata \
+            xz-utils \
             vim-tiny \
             wget \
             && \
@@ -62,7 +63,7 @@ RUN set -x && \
     dpkg-reconfigure -f noninteractive tzdata && \
     echo '%zabbix ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers && \
     \
-### S6 installation
+### S6 installation  #fuer neuste Version 3.xxx ...arm.tar.xz | tar Jxf 
     curl -ksSL https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-arm.tar.gz | tar xfz - --strip 0 -C /
 
 ### Networking configuration
@@ -77,8 +78,8 @@ ENTRYPOINT ["/init"]
 
 
 ###https://github.com/tiredofit/docker-nodejs/tree/10/debian
-FROM epandi-debian-bullseye AS epandi-nodejs-16-debian-latest
-LABEL maintainer="Dave Conroy (dave at tiredofit dot ca)"
+FROM rps-debian-bullseye AS rps-nodejs-16-debian-latest
+LABEL maintainer="RPS / Dave Conroy (dave at tiredofit dot ca)"
 
 ### Environment variables
 ENV ENABLE_CRON=FALSE \
@@ -104,8 +105,8 @@ RUN adduser --home /app --gecos "Node User" --disabled-password nodejs && \
 
 
 ###https://github.com/tiredofit/docker-freepbx
-FROM epandi-nodejs-16-debian-latest
-LABEL maintainer="Dave Conroy (dave at tiredofit dot ca)"
+FROM rps-nodejs-16-debian-latest
+LABEL maintainer="RPS / Dave Conroy (dave at tiredofit dot ca)"
 
 ### Set defaults
 ENV ASTERISK_VERSION=18.14.0 \
@@ -113,7 +114,7 @@ ENV ASTERISK_VERSION=18.14.0 \
     DONGLE_VERSION=20200610 \
     G72X_CPUHOST=penryn \
     G72X_VERSION=1.4.3 \
-    MONGODB_VERSION=4.4 \
+    MONGODB_VERSION=4.2 \
     PHP_VERSION=7.4 \
     SPANDSP_VERSION=20180108 \
     RTP_START=18000 \
@@ -130,13 +131,13 @@ RUN c_rehash && \
     set -x && \
     curl https://packages.sury.org/php/apt.gpg | apt-key add - && \
     echo "deb https://packages.sury.org/php/ bullseye main" > /etc/apt/sources.list.d/deb.sury.org.list && \
-#    curl https://www.mongodb.org/static/pgp/server-${MONGODB_VERSION}.asc | apt-key add - && \
-#    echo "deb http://repo.mongodb.org/apt/debian bullseye/mongodb-org/${MONGODB_VERSION} main" > /etc/apt/sources.list.d/mongodb-org.list && \
+    #echo "deb http://archive.raspbian.org/raspbian buster main contrib non-free" >> /etc/apt/sources.list && \
+    #echo "deb http://deb.debian.org/debian/ stretch main" > /etc/apt/sources.list.d/strecht.list && \
     echo "deb http://ftp.us.debian.org/debian/ bullseye-backports main" > /etc/apt/sources.list.d/backports.list && \
     echo "deb-src http://ftp.us.debian.org/debian/ bullseye-backports main" >> /etc/apt/sources.list.d/backports.list && \
-    wget https://archive.raspbian.org/raspbian.public.key -O - | sudo apt-key add - && \
-    echo "deb http://archive.raspbian.org/raspbian bullseye main contrib non-free" >>/etc/apt/sources.list && \
-    echo "deb-src http://archive.raspbian.org/raspbian bullseye main contrib non-free" >>/etc/apt/sources.list && \
+    #wget https://archive.raspbian.org/raspbian.public.key -O - | sudo apt-key add - && \
+    #echo "deb http://archive.raspbian.org/raspbian bullseye main contrib non-free" >>/etc/apt/sources.list && \
+    #echo "deb-src http://archive.raspbian.org/raspbian bullseye main contrib non-free" >>/etc/apt/sources.list && \
     apt-get update && \
     apt-get -o Dpkg::Options::="--force-confold" upgrade -y && \
     \
@@ -160,7 +161,7 @@ RUN c_rehash && \
                         libcurl4-openssl-dev \
                         libedit-dev \
                         libfftw3-dev \
-                        libgmime-2.6-dev \
+                        libgmime-3.0-dev \
                         libgsm1-dev \
                         libical-dev \
                         libiksemel-dev \
@@ -168,7 +169,6 @@ RUN c_rehash && \
                         libldap2-dev \
                         liblua5.2-dev \
                         libmariadb-dev \
-                        libmariadbclient-dev \
                         libmp3lame-dev \
                         libncurses5-dev \
                         libneon27-dev \
@@ -220,16 +220,16 @@ RUN c_rehash && \
                     libc-client2007e \
                     libcfg7 \
                     libcpg4 \
-                    libgmime-2.6 \
+                    libgmime-3.0 \
                     libical3 \
                     libiodbc2 \
                     libiksemel3 \
-                    libicu63 \
+                    libicu67 \
                     libicu-dev \
                     libneon27 \
                     libosptk4 \
                     libresample1 \
-                    libsnmp30 \
+                    libsnmp40 \
                     libspeexdsp1 \
                     libsrtp2-1 \
                     libunbound8 \
@@ -240,7 +240,6 @@ RUN c_rehash && \
                     make \
                     mariadb-client \
                     mariadb-server \
-                    mongodb \
                     mpg123 \
                     php${PHP_VERSION} \
                     php${PHP_VERSION}-curl \
@@ -267,7 +266,14 @@ RUN c_rehash && \
                     uuid \
                     wget \
                     whois \
-                    xmlstarlet && \
+                    xmlstarlet \
+                    && \
+\
+### mongodb
+    echo "deb [trusted=yes] http://snapshot.debian.org/archive/debian/20160515T161830Z/ sid main" > /etc/apt/sources.list.d/snapshot.list && \
+    printf "Package: mongo-*\nPin: origin snapshot.debian.org\nPin-Priority: 990\n" > /etc/apt/preferences.d/snapshot && \
+    apt-get -o Acquire::Check-Valid-Until=false update && \
+    apt-get install -y --no-install-recommends  --allow-unauthenticated mongodb && \
     \
 ### Add users
     addgroup --gid 2600 asterisk && \
@@ -426,5 +432,7 @@ RUN c_rehash && \
 ### Networking configuration
 EXPOSE 80 443 4445 4569 5060/udp 5160/udp 5061 5161 8001 8003 8008 8009 8025 ${RTP_START}-${RTP_FINISH}/udp
 
+
 ### Files add
-ADD freepbx-15/install /
+ADD freepbx-16/install /
+

@@ -436,3 +436,37 @@ EXPOSE 80 443 4445 4569 5060/udp 5160/udp 5061 5161 8001 8003 8008 8009 8025 ${R
 ### Files add
 ADD freepbx-16/install /
 
+
+### Install iaxmodem
+RUN apt-get -o Acquire::Check-Valid-Until=false update && \
+    \
+    HYLAFAX_BUILD_DEPS='\
+                       g++ \
+                       libtiff5-dev' && \
+    \
+    apt-get install --no-install-recommends -y \
+                    $HYLAFAX_BUILD_DEPS \
+                    libtiff-tools \
+                    libtiff5 \
+                    exim4 && \ 
+    \
+    cd /usr/src && \
+    wget https://sourceforge.net/projects/iaxmodem/files/iaxmodem/iaxmodem-1.3.3.tar.gz && \
+    tar -xvzf iaxmodem-1.3.3.tar.gz && \
+    cd iaxmodem-1.3.3 && \
+    ./configure && make && \
+    cp iaxmodem /usr/bin && \
+    mkdir /var/log/iaxmodem && \
+    cd /var/log/iaxmodem/ && \
+    touch ttyIAX0 && \
+    touch iaxmodem && \
+    \
+### Cleanup
+    rm -rf /usr/src/* && \
+    apt-get purge -y $HYLAFAX_BUILD_DEPS && \
+    apt-get -y autoremove && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+### Add hylafax files (incl. iaxmodem, faxgetty)
+ADD hylafax/install /

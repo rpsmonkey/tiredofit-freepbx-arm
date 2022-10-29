@@ -1,0 +1,11 @@
+#!/usr/bin/with-contenv bash
+source /assets/functions/00-container
+prepare_service single
+# shellcheck disable=SC2034
+PROCESS_NAME="iaxmodem"
+
+# Starts the modem
+/usr/bin/iaxmodem ttyI150 &
+
+liftoff
+
